@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "364246895156",
+    "firebase_url": "https://endsem-8ba5f.firebaseio.com",
+    "project_id": "endsem-8ba5f",
+    "storage_bucket": "endsem-8ba5f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364246895156:android:b09ac7fbbeea57d4",
+        "android_client_info": {
+          "package_name": "com.example.krushna.endsem"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "364246895156-hgc79gpg80n5dphsn4o08q8vd3e8k9kd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.krushna.endsem",
+            "certificate_hash": "e998a503e8e518f4c7bf26e58e8bb6d6451516d7"
+          }
+        },
+        {
+          "client_id": "364246895156-tvj3edgo6cg3c5ahshrgst6ge2nj28tc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZVaNOwZ1uqYarJjqaAqs2-rig4d7a-Zg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "364246895156-tvj3edgo6cg3c5ahshrgst6ge2nj28tc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

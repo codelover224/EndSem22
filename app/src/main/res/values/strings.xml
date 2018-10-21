@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">End Sem</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_police">Police</string>
+    <string name="title_ambulance">Ambulance</string>
+    <string name="title_fire">Fire</string>
+    <string name="title_activity_login_page">Login_page</string>
+</resources>
