@@ -21,24 +21,57 @@
         android:background="@drawable/rounded_button"
         android:id="@+id/et_mobile_no"
         android:inputType="number"
+        android:hint="mobile no"
+        android:gravity="center_horizontal"
+        />
+    <EditText
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/rounded_button"
+        android:id="@+id/et_name"
+        android:hint="name"
+        android:layout_below="@id/et_mobile_no"
+        android:gravity="center_horizontal"
+        />
+
+    <EditText
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/rounded_button"
+        android:id="@+id/et_veh_no"
+        android:layout_below="@id/et_name"
+        android:hint="vehicle no"
+        android:textSize="25dp"
         android:gravity="center_horizontal"
         />
 
 
-
         <Spinner
+            android:id="@+id/spinner"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:background="#FF0"
-            android:layout_below="@id/et_mobile_no"
+            android:layout_below="@id/et_veh_no"
+            android:layout_marginTop="10dp"
             android:gravity="center_horizontal"
-            >
-
-        </Spinner>
-
+            android:layout_marginLeft="130dp"
+            />
 
 
-
+    <Button
+        android:id="@+id/btn_done"
+        android:layout_width="150dp"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="bottom"
+        android:text="Done"
+        android:textSize="40dp"
+        android:layout_alignParentRight="true" />
 
 
 

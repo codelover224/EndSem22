@@ -1,6 +1,7 @@
 package com.example.krushna.endsem;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -55,7 +56,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private List<Polyline> polylines;
     private static final int[] COLORS = new int[]{R.color.colorPrimary, R.color.colorPrimaryDark, R.color.red, R.color.colorAccent, R.color.primary_dark_material_light};
 
-
+    String type = getIntent().getExtras().getString("type");
+    String name = getIntent().getExtras().getString("name");
+    String mob_no=getIntent().getExtras().getString("mob");
+    String veh_no=getIntent().getExtras().getString("veh_no");
     boolean show = true;
 
     private GoogleMap mMap;
@@ -151,9 +155,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                        // Toast.makeText(MainActivity.this, location.getLatitude() + "," + location.getLongitude(), Toast.LENGTH_SHORT).show();
 
                         LocationCoordinates lc = new LocationCoordinates(location.getLatitude(), location.getLongitude());
+                        MainLogin ml = new MainLogin();
+                        ml.setMob_no(mob_no);
+                        ml.setLc(lc);
+                        ml.setName(name);
+                        ml.setVeh_no(veh_no);
+                        ml.setType(type);
                         ConstraintLayout cl = findViewById(R.id.container);
                         Snackbar.make(cl,location.getLatitude() +"," + location.getLatitude(),Snackbar.LENGTH_SHORT).setAction("Action",null).show();
-
+                        amb_reference.child(mob_no).setValue(ml);
                         pol_reference.child("pol_live").setValue(lc);
 
                         locations.add(new LatLng(location.getLatitude(), location.getLongitude()));
