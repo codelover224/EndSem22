@@ -14,6 +14,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -56,10 +57,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private List<Polyline> polylines;
     private static final int[] COLORS = new int[]{R.color.colorPrimary, R.color.colorPrimaryDark, R.color.red, R.color.colorAccent, R.color.primary_dark_material_light};
 
-    String type = getIntent().getExtras().getString("type");
-    String name = getIntent().getExtras().getString("name");
-    String mob_no=getIntent().getExtras().getString("mob");
-    String veh_no=getIntent().getExtras().getString("veh_no");
+    String type ;
+    String name ;
+    String mob_no;
+    String veh_no;
+
+
+
     boolean show = true;
 
     private GoogleMap mMap;
@@ -69,6 +73,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     DatabaseReference pol_reference = database.getReference("police_live_locations");
     DatabaseReference pol_reference1 = database.getReference("police_live_locations/pol_live");
     DatabaseReference fire_reference = database.getReference("fire_live_locations");
+    DatabaseReference approachingLableRefrence = database.getReference(String.format("/vehicles"));
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -86,23 +91,30 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     show = false;
                     final Bitmap police = BitmapFactory.decodeResource(getResources(), R.mipmap.police72);
                     final Bitmap fire = BitmapFactory.decodeResource(getResources(), R.mipmap.fire72);
+                    final Bitmap ambulance = BitmapFactory.decodeResource(getResources(), R.mipmap.amb72);
 
                     mMap.addMarker(new MarkerOptions().position(new LatLng(34, 151))
                             .icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(police))));
                     // mTextMessage.setText(R.string.title_ambulance);
 
-                    amb_reference1.addValueEventListener(new ValueEventListener() {
+                    approachingLableRefrence.child("Ambulance").addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
 
-                           // mMap.clear();
+                           mMap.clear();
 
-                            LocationCoordinates lc = dataSnapshot.getValue(LocationCoordinates.class);
+                            /*LocationCoordinates lc = dataSnapshot.getValue(LocationCoordinates.class);
                             Log.d("abcdef", lc.getLat() + "" + "," + lc.getLon());
 
                             mMap.addMarker(new MarkerOptions().position(new LatLng(lc.getLat(), lc.getLon()))
-                                    .icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(fire))));
-
+                                    .icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(fire))));*/
+                            //Log.d("firee", dataSnapshot.get);
+                            for (DataSnapshot ds : dataSnapshot.getChildren()){
+                             MainLogin login = ds.getValue(MainLogin.class);
+                             LocationCoordinates lc = login.getLc();
+                                mMap.addMarker(new MarkerOptions().position(new LatLng(lc.getLat(), lc.getLon()))
+                                        .icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap(ambulance))));
+                            }
                         }
 
                         @Override
@@ -110,6 +122,55 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                         }
                     });
+                    SmartLocation.with(MainActivity.this).location().oneFix().start(new OnLocationUpdatedListener() {
+                        @Override
+                        public void onLocationUpdated(Location location) {
+                            LocationCoordinates lc1 = new LocationCoordinates();
+                            lc1.setLat(location.getLatitude());
+                            lc1.setLon(location.getLongitude());
+                            findNearestVehicle(type, lc1, new VehicleLoader() {
+                                @Override
+                                public void nearestVehicleFound(final MainLogin vehicleInfo) {
+
+                                    Log.d("Helpp", vehicleInfo.getName()+"\nmobile no-->" + vehicleInfo.getMob_no());
+                                    /*mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                                        @Override
+                                        public void onMapClick(LatLng latLng) {
+                                            mMap.addMarker(new MarkerOptions().position(latLng))
+                                                    .setTitle("Name-->" + vehicleInfo.getName()+
+                                                    "\nMobile no-->" + vehicleInfo.getMob_no()+
+                                                    "\nVehicle No-->" + vehicleInfo.getVeh_no());
+                                            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                                                @Override
+                                                public void onInfoWindowClick(Marker marker) {
+                                                    getDirections(marker);
+                                                }
+                                            });
+                                        }
+                                    });*/
+
+                                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                                        @Override
+                                        public boolean onMarkerClick(Marker marker) {
+                                            marker.setTitle(vehicleInfo.getMob_no());
+                                            return false;
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void noVehicleFound() {
+
+                                }
+
+                                @Override
+                                public void errorOccurred(Throwable throwable) {
+
+                                }
+                            });
+                        }
+                    });
+
 
                     //return true;
                 }
@@ -131,6 +192,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        type = getIntent().getExtras().getString("type");
+         name = getIntent().getExtras().getString("name");
+         mob_no=getIntent().getExtras().getString("mob");
+         veh_no=getIntent().getExtras().getString("veh_no");
+
     }
 
     @Override
@@ -161,10 +228,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                         ml.setName(name);
                         ml.setVeh_no(veh_no);
                         ml.setType(type);
+                        ml.setLable("NA");
                         ConstraintLayout cl = findViewById(R.id.container);
                         Snackbar.make(cl,location.getLatitude() +"," + location.getLatitude(),Snackbar.LENGTH_SHORT).setAction("Action",null).show();
-                        amb_reference.child(mob_no).setValue(ml);
-                        pol_reference.child("pol_live").setValue(lc);
+                       // amb_reference.child(mob_no).setValue(ml);
+                        //pol_reference.child("pol_live").setValue(lc);
+                        approachingLableRefrence.child(type).child(mob_no).setValue(ml);
+                        updateApproachingLable(type,mob_no,lc);
 
                         locations.add(new LatLng(location.getLatitude(), location.getLongitude()));
                         if (show)
@@ -211,20 +281,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void drawPath(LocationCoordinates lc) {
 
-        /*LatLng start = new LatLng(lc.getLat(), lc.getLon());
-        LatLng waypoint = new LatLng(21.131180, 79.062398);
-        LatLng end = new LatLng(27.338603, 88.614466);*/
-
-       /* Routing routing = new Routing.Builder()
-                .key("AIzaSyB7Hf1QFt5zQhSzAwssBSqY2Z9rbEot_7g")
-                .travelMode(Routing.TravelMode.DRIVING)
-                .withListener(this)
-                .waypoints(start, end)
-                .build();
-        routing.execute();*/
 
         if (locations != null && locations.size() > 0) {
-           // mMap.clear();
+           mMap.clear();
 
             Bitmap ambulance = BitmapFactory.decodeResource(getResources(), R.mipmap.amb72);
 
@@ -294,4 +353,131 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void onRoutingCancelled() {
 
     }
+
+
+    public void updateApproachingLable(String type, String phoneNumber, LocationCoordinates locationCoordinates) {
+        DatabaseReference approachingLableRefrence = database.getReference(String.format("/vehicles/%s/%s/lable/",type,phoneNumber));
+
+        LocationDataHolder[] squareLocations = {
+                new LocationDataHolder(21.170640,79.069690, "Katol Sq."),
+        };
+
+
+        for (LocationDataHolder squareLocation : squareLocations) {
+
+            float distanceFromSquare = distFrom(locationCoordinates.getLat(), locationCoordinates.getLon(), squareLocation.getLat(), squareLocation.getLon());//In meters
+            if (distanceFromSquare <= 2000) {
+                //Ambulance is Apporoaching square
+                approachingLableRefrence.setValue(String.format("%s Approaching %s",type,squareLocation.getName()));
+            } else {
+                //Ambulance is NOT Apporoaching square
+                approachingLableRefrence.setValue("NA");
+            }
+        }
+    }
+
+
+    public static float distFrom(double lat1, double lng1, double lat2, double lng2) {
+        double earthRadius = 6371000; // meters
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLng = Math.toRadians(lng2 - lng1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2)
+                * Math.sin(dLng / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        float dist = (float) (earthRadius * c);
+
+        return dist;
+    }
+
+
+    public class LocationDataHolder{
+        double lat;
+        double lon;
+        String name;
+
+        public LocationDataHolder(double lat, double lon, String name) {
+            this.lat = lat;
+            this.lon = lon;
+            this.name = name;
+        }
+
+        public double getLat() {
+            return lat;
+        }
+
+        public void setLat(double lat) {
+            this.lat = lat;
+        }
+
+        public double getLon() {
+            return lon;
+        }
+
+        public void setLon(double lon) {
+            this.lon = lon;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    public interface VehicleLoader {
+        void nearestVehicleFound(MainLogin vehicleInfo);
+
+        void noVehicleFound();
+
+        void errorOccurred(Throwable throwable);
+    }
+
+
+    public void findNearestVehicle(String type, final LocationCoordinates userLocation, final VehicleLoader vehicleLoader) {
+        DatabaseReference vehicles = database.getReference(String.format("/vehicles/%s/", type));
+
+        vehicles.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                Log.d("inside dv", "here");
+
+                    float shortestDistanceFound = 2000;
+                    MainLogin vehicleFiltered = null;
+
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+
+                        Log.d("inside dv", "here");
+
+                        MainLogin vehicle = ds.getValue(MainLogin.class);
+
+                        if (distFrom(userLocation.getLat(), userLocation.getLon(), vehicle.getLc().getLat(), vehicle.getLc().getLon()) < shortestDistanceFound) {
+                            vehicleFiltered = vehicle;
+                        }
+                    }
+
+                    if (vehicleFiltered != null) {
+                        vehicleLoader.nearestVehicleFound(vehicleFiltered);
+                    } else {
+                        vehicleLoader.noVehicleFound();
+                    }
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("onCancelled", databaseError.getMessage());
+                vehicleLoader.errorOccurred(new Throwable(databaseError.getMessage()));
+            }
+        });
+
+
+    }
+
 }

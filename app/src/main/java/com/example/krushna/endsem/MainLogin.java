@@ -2,17 +2,26 @@ package com.example.krushna.endsem;
 
 class MainLogin {
 
-    String mob_no,name,veh_no,type;
+    String mob_no,name,veh_no,type,lable;
     LocationCoordinates lc;
 
     public MainLogin(){}
 
-    public MainLogin(String mob_no, String name, String veh_no, String type, LocationCoordinates lc) {
+    public MainLogin(String mob_no, String name, String veh_no, String type, LocationCoordinates lc,String lable) {
         this.mob_no = mob_no;
         this.name = name;
         this.veh_no = veh_no;
         this.type = type;
         this.lc = lc;
+        this.lable=lable;
+    }
+
+    public String getLable() {
+        return lable;
+    }
+
+    public void setLable(String lable) {
+        this.lable = lable;
     }
 
     public String getMob_no() {

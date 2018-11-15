@@ -1,7 +1,14 @@
 package com.example.krushna.endsem;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.AnimationDrawable;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,8 +45,8 @@ public class Login_Activity extends AppCompatActivity implements AdapterView.OnI
         pub = findViewById(R.id.btn_public);
         txt =findViewById(R.id.txt_login);*/
         name=findViewById(R.id.et_name);
-        mob_no=findViewById(R.id.et_mobile_no);
-        veh_no=findViewById(R.id.et_veh_no);
+        mob_no=findViewById(R.id.et_mobno);
+        veh_no=findViewById(R.id.et_vehno);
         done=findViewById(R.id.btn_done);
         spinner = findViewById(R.id.spinner);
         spinner.setOnItemSelectedListener(this);
@@ -48,6 +55,7 @@ public class Login_Activity extends AppCompatActivity implements AdapterView.OnI
         drawable.setEnterFadeDuration(4500);
         drawable.setExitFadeDuration(4500);
         drawable.start();
+        askForPermission(Manifest.permission.ACCESS_FINE_LOCATION,0x1);
 
         List<String> categories = new ArrayList<String>();
         categories.add("Ambulance");
@@ -110,6 +118,32 @@ public class Login_Activity extends AppCompatActivity implements AdapterView.OnI
         });*/
     }
 
+    @Override
+    public void onBackPressed() {
+       // super.onBackPressed();
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(Login_Activity.this, android.R.style.Theme_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(Login_Activity.this);
+        }
+        builder.setTitle("Delete entry")
+                .setMessage("Are you sure you want to delete this entry?")
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                        System.exit(0);
+                    }
+                })
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                        dialog.cancel();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -119,5 +153,22 @@ public class Login_Activity extends AppCompatActivity implements AdapterView.OnI
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    private void askForPermission(String permission, Integer requestCode) {
+        if (ContextCompat.checkSelfPermission(Login_Activity.this, permission) != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(Login_Activity.this, permission)) {
+
+                //This is called if user has denied the permission before
+                //In this case I am just asking the permission again
+                ActivityCompat.requestPermissions(Login_Activity.this, new String[]{permission}, requestCode);
+
+            } else {
+
+                ActivityCompat.requestPermissions(Login_Activity.this, new String[]{permission}, requestCode);
+            }
+        }
     }
 }
