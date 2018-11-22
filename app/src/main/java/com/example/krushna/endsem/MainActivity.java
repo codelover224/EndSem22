@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -27,6 +28,7 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
+import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -53,6 +55,8 @@ import io.nlopez.smartlocation.location.config.LocationParams;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback, RoutingListener {
 
+
+    private MainActivity mainActivity;
     List<LatLng> locations = new ArrayList<>();
     private List<Polyline> polylines;
     private static final int[] COLORS = new int[]{R.color.colorPrimary, R.color.colorPrimaryDark, R.color.red, R.color.colorAccent, R.color.primary_dark_material_light};
@@ -62,7 +66,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     String mob_no;
     String veh_no;
 
-
+    public String getName(){
+        return name;
+    }
 
     boolean show = true;
 
@@ -170,7 +176,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                             });
                         }
                     });
-
+                    BottomSheet bottomSheet= new BottomSheet();
+                    bottomSheet.show(getSupportFragmentManager(),"bottomsheet");
 
                     //return true;
                 }
@@ -188,6 +195,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_main);
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
+
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -202,7 +210,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
 
         mMap = googleMap;
         Bitmap police = BitmapFactory.decodeResource(getResources(), R.mipmap.police72);
@@ -309,12 +316,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     .rotation(bearing)
                     .flat(true));
 
-
             Polyline line = mMap.addPolyline(new PolylineOptions()
                     .add(locations.toArray(new LatLng[]{}))
                     .width(15)
                     .color(Color.parseColor("#3E82F7")));
-
 
         }
     }
@@ -391,6 +396,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         return dist;
     }
 
+    public interface ActivityListener{
+        void onInfo(MainActivity activity);
+
+    }
 
     public class LocationDataHolder{
         double lat;
@@ -444,15 +453,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-
-                Log.d("inside dv", "here");
-
                     float shortestDistanceFound = 2000;
                     MainLogin vehicleFiltered = null;
 
                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
-
-                        Log.d("inside dv", "here");
 
                         MainLogin vehicle = ds.getValue(MainLogin.class);
 

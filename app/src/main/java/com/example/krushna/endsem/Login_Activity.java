@@ -127,8 +127,8 @@ public class Login_Activity extends AppCompatActivity implements AdapterView.OnI
         } else {
             builder = new AlertDialog.Builder(Login_Activity.this);
         }
-        builder.setTitle("Delete entry")
-                .setMessage("Are you sure you want to delete this entry?")
+        builder.setTitle("Quit?")
+                .setMessage("Are you sure you want to quit this application?")
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // continue with delete
