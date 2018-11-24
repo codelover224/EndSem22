@@ -13,6 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -20,20 +22,22 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Login_Activity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    private Button amb,pol,fire,pub;
-    EditText name,mob_no,veh_no;
+    private Button amb, pol, fire, pub;
+    EditText name, mob_no, veh_no;
     Button done;
     TextView txt;
     RelativeLayout layout;
     AnimationDrawable drawable;
     Spinner spinner;
-    String type="";
+    String type = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,18 +48,19 @@ public class Login_Activity extends AppCompatActivity implements AdapterView.OnI
         fire = findViewById(R.id.btn_fire);
         pub = findViewById(R.id.btn_public);
         txt =findViewById(R.id.txt_login);*/
-        name=findViewById(R.id.et_name);
-        mob_no=findViewById(R.id.et_mobno);
-        veh_no=findViewById(R.id.et_vehno);
-        done=findViewById(R.id.btn_done);
+        name = findViewById(R.id.et_name);
+        mob_no = findViewById(R.id.et_mobno);
+        veh_no = findViewById(R.id.et_vehno);
+        done = findViewById(R.id.btn_done);
         spinner = findViewById(R.id.spinner);
         spinner.setOnItemSelectedListener(this);
         layout = findViewById(R.id.rl1);
-        drawable=(AnimationDrawable) layout.getBackground();
+        drawable = (AnimationDrawable) layout.getBackground();
         drawable.setEnterFadeDuration(4500);
         drawable.setExitFadeDuration(4500);
         drawable.start();
-        askForPermission(Manifest.permission.ACCESS_FINE_LOCATION,0x1);
+        final Animation shake = AnimationUtils.loadAnimation(this, R.anim.milkshake);
+        askForPermission(Manifest.permission.ACCESS_FINE_LOCATION, 0x1);
 
         List<String> categories = new ArrayList<String>();
         categories.add("Ambulance");
@@ -70,13 +75,28 @@ public class Login_Activity extends AppCompatActivity implements AdapterView.OnI
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(Login_Activity.this,MainActivity.class);
-                i.putExtra("type",type);
-                i.putExtra("name",name.getText().toString());
-                i.putExtra("mob",mob_no.getText().toString());
-                i.putExtra("veh_no",veh_no.getText().toString());
-                Log.d("values-->", type+ "\t"+name.getText().toString()+"\t" + mob_no.getText().toString() +"\t" + veh_no.getText().toString());
-                startActivity(i);
+                String mn = mob_no.getText().toString();
+                if (mn.length() < 10) {
+                    mob_no.startAnimation(shake);
+                    Toast.makeText(Login_Activity.this, "Enter proper mobile no", Toast.LENGTH_SHORT).show();
+                }
+                else if(name.getText().toString().length()==0){
+                    name.startAnimation(shake);
+                    Toast.makeText(Login_Activity.this, "Name cannot be empty", Toast.LENGTH_SHORT).show();
+                }
+                else if(veh_no.getText().toString().length()==0){
+                    veh_no.startAnimation(shake);
+                    Toast.makeText(Login_Activity.this, "Vehicle number cannot be empty", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Intent i = new Intent(Login_Activity.this, MainActivity.class);
+                    i.putExtra("type", type);
+                    i.putExtra("name", name.getText().toString());
+                    i.putExtra("mob", mob_no.getText().toString());
+                    i.putExtra("veh_no", veh_no.getText().toString());
+                    Log.d("values-->", type + "\t" + name.getText().toString() + "\t" + mob_no.getText().toString() + "\t" + veh_no.getText().toString());
+                    startActivity(i);
+                }
             }
         });
 
@@ -120,7 +140,7 @@ public class Login_Activity extends AppCompatActivity implements AdapterView.OnI
 
     @Override
     public void onBackPressed() {
-       // super.onBackPressed();
+        // super.onBackPressed();
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder = new AlertDialog.Builder(Login_Activity.this, android.R.style.Theme_Material_Dialog_Alert);

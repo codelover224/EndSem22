@@ -4,16 +4,26 @@ class MainLogin {
 
     String mob_no,name,veh_no,type,lable;
     LocationCoordinates lc;
+    boolean isBooked;
 
     public MainLogin(){}
 
-    public MainLogin(String mob_no, String name, String veh_no, String type, LocationCoordinates lc,String lable) {
+    /*public MainLogin(String mob_no, String name, String veh_no, String type, LocationCoordinates lc,String lable,boolean isBooked) {
         this.mob_no = mob_no;
         this.name = name;
         this.veh_no = veh_no;
         this.type = type;
         this.lc = lc;
         this.lable=lable;
+        this.isBooked=isBooked;
+    }*/
+
+    public boolean getStatus() {
+        return isBooked;
+    }
+
+    public void setStatus(boolean isBooked) {
+        this.isBooked = isBooked;
     }
 
     public String getLable() {
